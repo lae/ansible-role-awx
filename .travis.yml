@@ -3,13 +3,15 @@ language: python
 sudo: required
 dist: trusty
 cache:
-  directories: [ '$HOME/lxc' ]
+  directories:
+  - "$HOME/lxc"
   pip: true
 matrix:
   fast_finish: true
 env:
 - ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
 - ANSIBLE_VERSION='<2.6.0' # 2.5.x
+- ANSIBLE_VERSION='<2.5.0' # 2.4.x
 install:
 - if [ "$ANSIBLE_GIT_VERSION" ]; then pip install "https://github.com/ansible/ansible/archive/${ANSIBLE_GIT_VERSION}.tar.gz";
   elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
@@ -22,7 +24,7 @@ install:
 before_script: cd tests/
 script:
 - ansible-playbook -i inventory deploy.yml --syntax-check
-- ansible-playbook -i inventory deploy.yml
+- ansible-playbook -i inventory -v deploy.yml
 - 'ANSIBLE_STDOUT_CALLBACK=debug unbuffer ansible-playbook -i inventory -vv
   deploy.yml > idempotency.log 2>&1 || (e=$?; cat idempotency.log; exit $e)'
 - 'grep -A1 "PLAY RECAP" idempotency.log | grep -qP "changed=0 .*failed=0 .*" &&

@@ -6,11 +6,11 @@
   vars:
     test_profiles:
       - profile: debian-stretch
+      - profile: ubuntu-bionic
       - profile: ubuntu-xenial
     lxc_use_overlayfs: no
 
-- hosts: awx
-  become: True
+- hosts: all
   roles:
     - lae.docker
   pre_tasks:

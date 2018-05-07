@@ -1,18 +1,19 @@
 galaxy_info:
   author: Benjamin Le
-  description: Quick and easy to deployment AWX on Debian and Ubuntu
+  description: Deploys and configures AWX, a web-based UI for Ansible
   license: MIT
   min_ansible_version: 2.4
   platforms:
   - name: Debian
     versions:
-    - all
+      - sid
+      - stretch
   - name: Ubuntu
     versions:
-    - all
+      - bionic
+      - xenial
 
   galaxy_tags: 
     - awx
-    - install
 
 dependencies: []
