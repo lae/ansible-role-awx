@@ -10,6 +10,4 @@
     state: present
   with_items: "{{ awx_package_dependencies }}"
 
-- import_tasks: set_image.yml
-
 - import_tasks: standalone.yml

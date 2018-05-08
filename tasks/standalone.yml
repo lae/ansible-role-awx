@@ -79,7 +79,7 @@
     name: awx_web
     state: started
     restart_policy: unless-stopped
-    image: "{{ awx_web_docker_actual_image }}"
+    image: "{{ awx_web_docker_image }}"
     volumes: >
       {{
         [project_data_dir + ':/var/lib/awx/projects:rw'] if project_data_dir is defined else []
@@ -117,7 +117,7 @@
     name: awx_task
     state: started
     restart_policy: unless-stopped
-    image: "{{ awx_task_docker_actual_image }}"
+    image: "{{ awx_task_docker_image }}"
     volumes: >
       {{
         [project_data_dir + ':/var/lib/awx/projects:rw'] if project_data_dir is defined else []

@@ -1,7 +1,12 @@
 ---
-# By default the base will be used to search for ansible/awx_web and ansible/awx_task
-dockerhub_base: "ansible"
-dockerhub_version: "1.0.2"
+awx_version: 1.0.2
+# By default, the following will pull "ansible/awx_web" and "ansible/awx_task"
+# from Docker Hub, but can be overridden.
+awx_docker_registry_namespace: ansible
+awx_docker_registry_host:
+awx_web_docker_image: "{{ awx_docker_registry_host + '/' if awx_docker_registry_host else ''}}{{ awx_docker_registry_namespace }}/awx_web:{{ awx_version }}"
+awx_task_docker_image: "{{ awx_docker_registry_host + '/' if awx_docker_registry_host else ''}}{{ awx_docker_registry_namespace }}/awx_task:{{ awx_version }}"
+
 rabbitmq_version: "3.7.4"
 rabbitmq_image: "ansible/awx_rabbitmq:{{rabbitmq_version}}"
 
