@@ -1,9 +1,0 @@
-[awx]
-debian-stretch-01
-ubuntu-bionic-01
-ubuntu-xenial-01
-
-[awx_clean]
-debian-stretch-02
-ubuntu-bionic-02
-ubuntu-xenial-02

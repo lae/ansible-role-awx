@@ -1,4 +1,6 @@
 ---
+ansible_ssh_user: root
+
 docker_python_install: yes
 
 awx_postgres_database: "awx_{{ inventory_hostname_short }}"
