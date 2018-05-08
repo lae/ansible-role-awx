@@ -1,11 +1,11 @@
 ---
-- command: "python -c 'import docker'"
+- command: "{{ ansible_python_interpreter | default('python') }} -c 'import docker'"
   register: __awx_docker_import
   ignore_errors: yes
   changed_when: False
 
 - block:
-  - command: "python -c 'import pip'"
+  - command: "{{ ansible_python_interpreter | default('python') }} -c 'import pip'"
     register: __awx_pip_import
     ignore_errors: yes
     changed_when: False

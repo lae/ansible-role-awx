@@ -13,7 +13,7 @@ galaxy_info:
       - bionic
       - xenial
 
-  galaxy_tags: 
+  galaxy_tags:
     - awx
 
 dependencies: []

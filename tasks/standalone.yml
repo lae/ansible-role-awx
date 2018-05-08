@@ -108,6 +108,7 @@
       MEMCACHED_PORT: "11211"
       AWX_ADMIN_USER: "{{ default_admin_user|default('admin') }}"
       AWX_ADMIN_PASSWORD: "{{ default_admin_password|default('password') }}"
+  register: __awx_web_container
 
 - name: Activate AWX Task Container
   docker_container:
@@ -144,3 +145,10 @@
       MEMCACHED_PORT: "11211"
       AWX_ADMIN_USER: "{{ default_admin_user|default('admin') }}"
       AWX_ADMIN_PASSWORD: "{{ default_admin_password|default('password') }}"
+
+- name: Wait until Nginx on awx_web is ready
+  uri:
+    url: "http://{{ __awx_web_container.ansible_facts.docker_container.NetworkSettings.IPAddress }}:8052"
+  register: __awx_web_fetch
+  until: __awx_web_fetch is succeeded
+  retries: 10
