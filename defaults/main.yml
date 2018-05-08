@@ -14,7 +14,7 @@ awx_web_listen_address: localhost:8080
 
 # awx_postgres_host: localhost
 awx_postgres_data_dir: /var/lib/awx/pgdocker
-awx_postgres_username: awx
+awx_postgres_user: awx
 awx_postgres_password: awxpass_changeme
 awx_postgres_database: awx
 awx_postgres_port: 5432

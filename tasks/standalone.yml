@@ -8,7 +8,7 @@
     volumes:
       - "{{ awx_postgres_data_dir }}:/var/lib/postgresql/data:Z"
     env:
-      POSTGRES_USER: "{{ awx_postgres_username }}"
+      POSTGRES_USER: "{{ awx_postgres_user }}"
       POSTGRES_PASSWORD: "{{ awx_postgres_password }}"
       POSTGRES_DB: "{{ awx_postgres_database }}"
       PGDATA: "/var/lib/postgresql/data/pgdata"
@@ -95,7 +95,7 @@
       no_proxy: "{{ no_proxy | default('') }}"
       SECRET_KEY: "{{ secret_key }}"
       DATABASE_NAME: "{{ awx_postgres_database }}"
-      DATABASE_USER: "{{ awx_postgres_username }}"
+      DATABASE_USER: "{{ awx_postgres_user }}"
       DATABASE_PASSWORD: "{{ awx_postgres_password }}"
       DATABASE_PORT: "{{ awx_postgres_port }}"
       DATABASE_HOST: "{{ awx_postgres_host }}"
@@ -131,7 +131,7 @@
       no_proxy: "{{ no_proxy | default('') }}"
       SECRET_KEY: "{{ secret_key }}"
       DATABASE_NAME: "{{ awx_postgres_database }}"
-      DATABASE_USER: "{{ awx_postgres_username }}"
+      DATABASE_USER: "{{ awx_postgres_user }}"
       DATABASE_PASSWORD: "{{ awx_postgres_password }}"
       DATABASE_HOST: "{{ awx_postgres_host }}"
       DATABASE_PORT: "{{ awx_postgres_port }}"
