@@ -1,6 +1,12 @@
 ---
 - hosts: all
   tasks:
+    - block:
+        - name: awx_web logs
+          command: docker logs awx_web
+        - name: awx_task logs
+          command: docker logs awx_task
+      ignore_errors: yes
     - name: AWX web UI testing
       uri:
         url: "http://localhost:8080"

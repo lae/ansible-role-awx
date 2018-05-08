@@ -40,12 +40,17 @@
     port: "{{ item.port }}"
   when: item.container is changed
   with_items:
-    - port: 5432
+    - name: postgres
+      port: 5432
       container: "{{ __awx_postgres_container }}"
-    - port: 5672
+    - name: rabbitmq
+      port: 5672
       container: "{{ __awx_rabbitmq_container }}"
-    - port: 11211
+    - name: memcached
+      port: 11211
       container: "{{ __awx_memcached_container }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: Set awx_postgres_host to linked container's name if left unspecified
   set_fact:
@@ -79,7 +84,7 @@
       }}
     user: root
     ports:
-      - "{{ host_port }}:8052"
+      - "{{ awx_web_listen_address }}:8052"
     links: "{{ __awx_web_docker_links }}"
     hostname: awxweb
     dns_search_domains: "{{ awx_container_search_domains.split(',') if awx_container_search_domains is defined else omit }}"
