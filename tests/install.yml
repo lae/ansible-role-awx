@@ -45,3 +45,13 @@
         - cpuacct
         - net_cls
         - net_prio
+  post_tasks:
+    - name: Install psycopg2
+      pip:
+        name: psycopg2
+    - name: Create database for AWX
+      postgresql_db:
+        name: "{{ awx_postgres_database }}"
+        login_host: "{{ awx_postgres_host }}"
+        login_user: "{{ awx_postgres_user }}"
+      when: awx_postgres_database is defined
