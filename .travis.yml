@@ -8,6 +8,10 @@ cache:
   pip: true
 matrix:
   fast_finish: true
+services:
+- postgresql
+addons:
+  postgresql: "9.6"
 env:
 - ANSIBLE_GIT_VERSION='devel' # 2.6.x development branch
 - ANSIBLE_VERSION='<2.6.0' # 2.5.x
@@ -21,7 +25,11 @@ install:
 - ansible-playbook tests/install.yml -i tests/inventory
 - git archive --format tar.gz HEAD > ben-le.awx.tar.gz && ansible-galaxy install
   ben-le.awx.tar.gz,$(git rev-parse HEAD),ben-le.awx && rm ben-le.awx.tar.gz
-before_script: cd tests/
+before_script:
+- echo "host all all 10.0.3.0/24 trust" | sudo tee -a /etc/postgresql/9.6/main/pg_hba.conf
+- echo "listen_addresses = '*'" | sudo tee -a /etc/postgresql/9.6/main/postgresql.conf
+- sudo service postgresql restart
+- cd tests/
 script:
 - ansible-playbook -i inventory deploy.yml --syntax-check
 - ansible-playbook -i inventory -v deploy.yml

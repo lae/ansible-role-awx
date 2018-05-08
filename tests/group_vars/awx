@@ -1,2 +1,7 @@
 ---
 docker_python_install: yes
+
+awx_postgres_database: "awx_{{ inventory_hostname_short }}"
+awx_postgres_host: 10.0.3.1
+awx_postgres_password:
+awx_postgres_user: postgres

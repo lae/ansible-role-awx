@@ -1,19 +1,19 @@
 ---
-- name: Activate postgres container
+- name: Create and start a PostgreSQL container
   docker_container:
     name: postgres
     state: started
     restart_policy: unless-stopped
     image: postgres:9.6
     volumes:
-      - "{{ postgres_data_dir }}:/var/lib/postgresql/data:Z"
+      - "{{ awx_postgres_data_dir }}:/var/lib/postgresql/data:Z"
     env:
-      POSTGRES_USER: "{{ pg_username }}"
-      POSTGRES_PASSWORD: "{{ pg_password }}"
-      POSTGRES_DB: "{{ pg_database }}"
+      POSTGRES_USER: "{{ awx_postgres_username }}"
+      POSTGRES_PASSWORD: "{{ awx_postgres_password }}"
+      POSTGRES_DB: "{{ awx_postgres_database }}"
       PGDATA: "/var/lib/postgresql/data/pgdata"
-  when: pg_hostname is not defined or pg_hostname == ''
-  register: postgres_container_activate
+  register: __awx_postgres_container
+  when: awx_postgres_host is not defined or not awx_postgres_host
 
 - name: Activate rabbitmq container
   docker_container:
@@ -33,46 +33,35 @@
     restart_policy: unless-stopped
     image: memcached:alpine
 
-- name: Wait for postgres and rabbitmq to activate
+- name: Wait until PostgreSQL container is connectable
+  wait_for:
+    host: "{{ __awx_postgres_container.ansible_facts.docker_container.NetworkSettings.IPAddress }}"
+    port: 5432
+  when: __awx_postgres_container is changed
+
+- name: Wait for rabbitmq to activate
   pause:
     seconds: 15
-  when: postgres_container_activate.changed or rabbitmq_container_activate.changed
+  when: rabbitmq_container_activate.changed
 
-- name: Set properties without postgres for awx_web
+- name: Set awx_postgres_host to linked container's name if left unspecified
   set_fact:
-    pg_hostname_actual: "{{ pg_hostname }}"
-    awx_web_container_links:
+    awx_postgres_host: "{{ awx_postgres_host | default('postgres', True) }}"
+
+- name: Set links for awx_web
+  set_fact:
+    __awx_web_docker_links:
       - rabbitmq
       - memcached
-  when: pg_hostname is defined
 
-- name: Set properties with postgres for awx_web
+- name: Add postgres link for awx_web/awx_task
   set_fact:
-    pg_hostname_actual: postgres
-    awx_web_container_links:
-      - rabbitmq
-      - memcached
-      - postgres
-  when: pg_hostname is not defined or pg_hostname == ''
+    __awx_web_docker_links: "{{ __awx_web_docker_links + ['postgres'] }}"
+  when: __awx_postgres_container.ansible_facts is defined
 
-- name: Set properties without postgres for awx_task
+- name: Set links for awx_task
   set_fact:
-    pg_hostname_actual: "{{ pg_hostname }}"
-    awx_task_container_links:
-      - rabbitmq
-      - memcached
-      - awx_web:awxweb
-  when: pg_hostname is defined
-
-- name: Set properties with postgres for awx_task
-  set_fact:
-    pg_hostname_actual: postgres
-    awx_task_container_links:
-      - rabbitmq
-      - memcached
-      - awx_web:awxweb
-      - postgres
-  when: pg_hostname is not defined or pg_hostname == ''
+    __awx_task_docker_links: "{{ __awx_web_docker_links + ['awx_web:awxweb'] }}"
 
 - name: Activate AWX Web Container
   docker_container:
@@ -88,7 +77,7 @@
     user: root
     ports:
       - "{{ host_port }}:8052"
-    links: "{{ awx_web_container_links|list }}"
+    links: "{{ __awx_web_docker_links }}"
     hostname: awxweb
     dns_search_domains: "{{ awx_container_search_domains.split(',') if awx_container_search_domains is defined else omit }}"
     dns_servers: "{{ awx_alternate_dns_servers.split(',') if awx_alternate_dns_servers is defined else omit }}"
@@ -97,11 +86,11 @@
       https_proxy: "{{ https_proxy | default('') }}"
       no_proxy: "{{ no_proxy | default('') }}"
       SECRET_KEY: "{{ secret_key }}"
-      DATABASE_NAME: "{{ pg_database }}"
-      DATABASE_USER: "{{ pg_username }}"
-      DATABASE_PASSWORD: "{{ pg_password }}"
-      DATABASE_PORT: "{{ pg_port }}"
-      DATABASE_HOST: "{{ pg_hostname_actual }}"
+      DATABASE_NAME: "{{ awx_postgres_database }}"
+      DATABASE_USER: "{{ awx_postgres_username }}"
+      DATABASE_PASSWORD: "{{ awx_postgres_password }}"
+      DATABASE_PORT: "{{ awx_postgres_port }}"
+      DATABASE_HOST: "{{ awx_postgres_host }}"
       RABBITMQ_USER: "guest"
       RABBITMQ_PASSWORD: "guest"
       RABBITMQ_HOST: "rabbitmq"
@@ -123,7 +112,7 @@
         [project_data_dir + ':/var/lib/awx/projects:rw'] if project_data_dir is defined else []
         + [ca_trust_dir + ':/etc/pki/ca-trust/source/anchors:ro'] if ca_trust_dir is defined else []
       }}
-    links: "{{ awx_task_container_links|list }}"
+    links: "{{ __awx_task_docker_links }}"
     user: root
     hostname: awx
     dns_search_domains: "{{ awx_container_search_domains.split(',') if awx_container_search_domains is defined else omit }}"
@@ -133,11 +122,11 @@
       https_proxy: "{{ https_proxy | default('') }}"
       no_proxy: "{{ no_proxy | default('') }}"
       SECRET_KEY: "{{ secret_key }}"
-      DATABASE_NAME: "{{ pg_database }}"
-      DATABASE_USER: "{{ pg_username }}"
-      DATABASE_PASSWORD: "{{ pg_password }}"
-      DATABASE_HOST: "{{ pg_hostname_actual }}"
-      DATABASE_PORT: "{{ pg_port }}"
+      DATABASE_NAME: "{{ awx_postgres_database }}"
+      DATABASE_USER: "{{ awx_postgres_username }}"
+      DATABASE_PASSWORD: "{{ awx_postgres_password }}"
+      DATABASE_HOST: "{{ awx_postgres_host }}"
+      DATABASE_PORT: "{{ awx_postgres_port }}"
       RABBITMQ_USER: "guest"
       RABBITMQ_PASSWORD: "guest"
       RABBITMQ_HOST: "rabbitmq"
