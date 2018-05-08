@@ -15,7 +15,7 @@
   register: __awx_postgres_container
   when: awx_postgres_host is not defined or not awx_postgres_host
 
-- name: Activate rabbitmq container
+- name: Create and start a RabbitMQ container
   docker_container:
     name: rabbitmq
     state: started
@@ -24,25 +24,28 @@
     env:
       RABBITMQ_DEFAULT_VHOST: "awx"
       RABBITMQ_ERLANG_COOKIE: "cookiemonster"
-  register: rabbitmq_container_activate
+  register: __awx_rabbitmq_container
 
-- name: Activate memcached container
+- name: Create and start a Memcached container
   docker_container:
     name: memcached
     state: started
     restart_policy: unless-stopped
     image: memcached:alpine
+  register: __awx_memcached_container
 
-- name: Wait until PostgreSQL container is connectable
+- name: Wait until all containers are connectable
   wait_for:
-    host: "{{ __awx_postgres_container.ansible_facts.docker_container.NetworkSettings.IPAddress }}"
-    port: 5432
-  when: __awx_postgres_container is changed
-
-- name: Wait for rabbitmq to activate
-  pause:
-    seconds: 15
-  when: rabbitmq_container_activate.changed
+    host: "{{ item.container.ansible_facts.docker_container.NetworkSettings.IPAddress }}"
+    port: "{{ item.port }}"
+  when: item.container is changed
+  with_items:
+    - port: 5432
+      container: "{{ __awx_postgres_container }}"
+    - port: 5672
+      container: "{{ __awx_rabbitmq_container }}"
+    - port: 11211
+      container: "{{ __awx_memcached_container }}"
 
 - name: Set awx_postgres_host to linked container's name if left unspecified
   set_fact:
