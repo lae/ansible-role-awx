@@ -1,5 +1,5 @@
 ---
-awx_version: 1.0.2
+awx_version: 1.0.6
 # By default, the following will pull "ansible/awx_web" and "ansible/awx_task"
 # from Docker Hub, but can be overridden.
 awx_docker_registry_namespace: ansible
