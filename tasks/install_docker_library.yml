@@ -1,0 +1,21 @@
+---
+- command: "python -c 'import docker'"
+  register: __awx_docker_import
+  ignore_errors: yes
+  changed_when: False
+
+- block:
+  - command: "python -c 'import pip'"
+    register: __awx_pip_import
+    ignore_errors: yes
+    changed_when: False
+
+  - name: Ensure pip is available if we are installing docker-py
+    fail:
+      msg: "Was unable to import pip via Ansible - is pip installed?"
+    when: __awx_pip_import.rc != 0
+
+  - name: Ensure Docker Python library is installed
+    pip:
+      name: docker
+  when: __awx_docker_import.rc != 0

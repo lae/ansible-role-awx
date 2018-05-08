@@ -1,4 +1,0 @@
-- name: Install docker-py and ansible via PIP
-  pip: name={{ item }}
-  with_items:
-    - docker-py

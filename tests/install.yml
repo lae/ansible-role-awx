@@ -8,10 +8,12 @@
       - profile: debian-stretch
       - profile: ubuntu-bionic
       - profile: ubuntu-xenial
+    test_hosts_per_profile: 2
     lxc_use_overlayfs: no
 
 - hosts: all
   roles:
+    - lae.pip
     - lae.docker
   pre_tasks:
     - name: Make cgroups modifiable

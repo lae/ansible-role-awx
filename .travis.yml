@@ -17,7 +17,7 @@ install:
   elif [ "$ANSIBLE_VERSION" ]; then pip install "ansible${ANSIBLE_VERSION}";
   else pip install ansible; fi
 - ansible --version
-- ansible-galaxy install lae.travis-lxc lae.docker
+- ansible-galaxy install lae.travis-lxc lae.docker lae.pip
 - ansible-playbook tests/install.yml -i tests/inventory
 - git archive --format tar.gz HEAD > ben-le.awx.tar.gz && ansible-galaxy install
   ben-le.awx.tar.gz,$(git rev-parse HEAD),ben-le.awx && rm ben-le.awx.tar.gz

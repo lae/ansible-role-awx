@@ -1,5 +1,5 @@
 ---
-- hosts: awx
+- hosts: all
   tasks:
     - name: AWX web UI testing
       uri:
