@@ -20,7 +20,7 @@
     name: rabbitmq
     state: started
     restart_policy: unless-stopped
-    image: "{{ rabbitmq_image }}"
+    image: "{{ awx_rabbitmq_docker_image }}"
     env:
       RABBITMQ_DEFAULT_VHOST: "awx"
       RABBITMQ_ERLANG_COOKIE: "cookiemonster"
@@ -31,7 +31,7 @@
     name: memcached
     state: started
     restart_policy: unless-stopped
-    image: memcached:alpine
+    image: "{{ awx_memcached_docker_image }}"
   register: __awx_memcached_container
 
 - name: Wait until all containers are connectable
